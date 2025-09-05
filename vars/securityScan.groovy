@@ -2,6 +2,8 @@
 
 def call(Map config) {
     // Build parameters for security_scan step
+    echo "Starting Black Duck Security Scan from Shared Library"
+
     def stepParams = [
         product: "polaris",
         polaris_server_url: config.polaris_server_url,
