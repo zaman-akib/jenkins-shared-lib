@@ -64,3 +64,143 @@ node {
 - `polaris_application_name`: Name of the application in Polaris
 - `polaris_project_name`: Name of the project in Polaris
 - `polaris_branch_name`: Branch name for the scan
+
+## Additional Functions
+
+### Unit Test
+```groovy
+unitTest()  // Outputs: "Unit test execution completed"
+```
+
+### Deploy
+```groovy
+deploy()  // Outputs: "Build deployed successfully"
+```
+
+### Using SecurityScanConfig Class
+
+You can also use the `SecurityScanConfig` class for object-oriented parameter management:
+
+```groovy
+@Library('security-scan-lib') _
+
+pipeline {
+    agent any
+    
+    stages {
+        stage('Security Scan') {
+            steps {
+                script {
+                    def scanConfig = new SecurityScanConfig()
+                        .setPolarisServerUrl("https://your-polaris-server.com")
+                        .setPolarisAccessToken("${POLARIS_TOKEN}")
+                        .setPolarisAssessmentTypes("SCA, SAST")
+                        .setPolarisApplicationName("MyApp")
+                        .setPolarisProjectName("MyProject")
+                        .setPolarisBranchName("${BRANCH_NAME}")
+                    
+                    scanConfig.executeScan(this)
+                }
+            }
+        }
+        
+        stage('Unit Test') {
+            steps {
+                unitTest()
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                deploy()
+            }
+        }
+    }
+}
+```
+
+### Complete Pipeline Example
+
+```groovy
+@Library('security-scan-lib') _
+
+pipeline {
+    agent any
+    
+    stages {
+        stage('Build') {
+            steps {
+                echo "Building application..."
+            }
+        }
+        
+        stage('Unit Test') {
+            steps {
+                unitTest()
+            }
+        }
+        
+        stage('Security Scan') {
+            steps {
+                script {
+                    def scanConfig = new SecurityScanConfig()
+                        .setPolarisServerUrl("https://your-polaris-server.com")
+                        .setPolarisAccessToken("${POLARIS_TOKEN}")
+                        .setPolarisAssessmentTypes("SCA, SAST")
+                        .setPolarisApplicationName("MyApp")
+                        .setPolarisProjectName("MyProject")
+                    
+                    scanConfig.executeScan(this)
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                deploy()
+            }
+        }
+    }
+}
+```
+
+### Using SimplePipeline Class
+
+For a more structured approach, you can use the `SimplePipeline` class:
+
+```groovy
+@Library('security-scan-lib') _
+
+pipeline {
+    agent any
+    
+    stages {
+        stage('Build') {
+            steps {
+                echo "Building application..."
+            }
+        }
+        
+        stage('Pipeline Execution') {
+            steps {
+                script {
+                    // Create pipeline instance
+                    SimplePipeline pipeline = new SimplePipeline(this)
+                    
+                    // Create security scan configuration
+                    def scanConfig = new SecurityScanConfig()
+                        .setPolarisServerUrl("https://your-polaris-server.com")
+                        .setPolarisAccessToken("${POLARIS_TOKEN}")
+                        .setPolarisAssessmentTypes("SCA, SAST")
+                        .setPolarisApplicationName("MyApp")
+                        .setPolarisProjectName("MyProject")
+                    
+                    // Execute pipeline steps
+                    pipeline.executeUnitTest()
+                    pipeline.executeSecurityScan(scanConfig)
+                    pipeline.deploy()
+                }
+            }
+        }
+    }
+}
